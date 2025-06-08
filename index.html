@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strength Analytics - Powerlifting Standards Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .header .description {
+            font-size: 0.95rem;
+            opacity: 0.8;
+        }
+        
+        .form-container {
+            padding: 40px 30px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .form-row.single {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        input, select {
+            padding: 14px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            min-height: 48px; /* Better touch targets */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+        
+        .lifts-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .lifts-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .lift-input {
+            position: relative;
+        }
+        
+        .lift-input::after {
+            content: 'kg';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-weight: 500;
+            pointer-events: none;
+        }
+        
+        .lift-input input {
+            padding-right: 40px;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            padding: 18px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            min-height: 56px; /* Better touch target */
+            touch-action: manipulation; /* Prevents zoom on tap */
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(42, 82, 152, 0.3);
+        }
+        
+        .results {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e8f4f8 100%);
+            border-radius: 12px;
+            border-left: 5px solid #2a5298;
+            display: none;
+        }
+        
+        .results h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e1e8ed;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-lift {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .result-percentile {
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: white;
+        }
+        
+        .percentile-excellent { background: #27ae60; }
+        .percentile-very-good { background: #2ecc71; }
+        .percentile-good { background: #f39c12; }
+        .percentile-average { background: #e67e22; }
+        .percentile-below-average { background: #e74c3c; }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8fafc;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .footer a {
+            color: #2a5298;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        /* Tablet styles */
+        @media (max-width: 1024px) {
+            .container {
+                margin: 15px;
+            }
+            
+            .header {
+                padding: 35px 25px;
+            }
+            
+            .form-container {
+                padding: 35px 25px;
+            }
+        }
+        
+        /* Mobile landscape and small tablets */
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .header .subtitle {
+                font-size: 1rem;
+            }
+            
+            .container {
+                margin: 10px;
+            }
+            
+            .form-container {
+                padding: 25px 20px;
+            }
+            
+            .lifts-section {
+                padding: 20px;
+                margin: 25px 0;
+            }
+            
+            .result-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 15px 0;
+            }
+            
+            .result-percentile {
+                align-self: flex-end;
+            }
+        }
+        
+        /* Mobile portrait */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                margin: 0;
+                border-radius: 12px;
+            }
+            
+            .header {
+                padding: 25px 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .header .subtitle {
+                font-size: 0.95rem;
+            }
+            
+            .header .description {
+                font-size: 0.9rem;
+            }
+            
+            .form-container {
+                padding: 20px 15px;
+            }
+            
+            .lifts-section {
+                padding: 15px;
+                margin: 20px 0;
+            }
+            
+            .lifts-title {
+                font-size: 1.1rem;
+            }
+            
+            label {
+                font-size: 0.9rem;
+                margin-bottom: 6px;
+            }
+            
+            input, select {
+                padding: 12px 14px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
+            .lift-input input {
+                padding-right: 45px;
+            }
+            
+            .calculate-btn {
+                padding: 16px 24px;
+                font-size: 1rem;
+                margin-top: 15px;
+            }
+            
+            .results {
+                padding: 20px 15px;
+                margin-top: 25px;
+            }
+            
+            .results h3 {
+                font-size: 1.2rem;
+                margin-bottom: 15px;
+            }
+            
+            .result-item {
+                padding: 12px 0;
+            }
+            
+            .footer {
+                padding: 15px 10px;
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* Very small screens */
+        @media (max-width: 320px) {
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .form-container {
+                padding: 15px 10px;
+            }
+            
+            .lifts-section {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Strength Analytics</h1>
+            <div class="subtitle">Powerlifting Standards Calculator</div>
+            <div class="description">Compare your lifts against 50,000+ competitive powerlifters</div>
+        </div>
+        
+        <div class="form-container">
+            <form id="strengthForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ageClass">Age Class</label>
+                        <select id="ageClass" name="ageClass" required onchange="updateWeightClasses()">
+                            <option value="">Select Age Class</option>
+                            <option value="junior">Junior (14-23)</option>
+                            <option value="open">Open (24-39)</option>
+                            <option value="masters">Masters (40+)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender" required onchange="updateWeightClasses()">
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="weightClass">Weight Class (kg)</label>
+                        <select id="weightClass" name="weightClass" required>
+                            <option value="">Select Gender & Age Class First</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="lifts-section">
+                    <div class="lifts-title">Competition Lifts (kg)</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="squat">Squat</label>
+                            <div class="lift-input">
+                                <input type="number" id="squat" name="squat" step="0.5" min="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="bench">Bench Press</label>
+                            <div class="lift-input">
+                                <input type="number" id="bench" name="bench" step="0.5" min="0">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="deadlift">Deadlift</label>
+                            <div class="lift-input">
+                                <input type="number" id="deadlift" name="deadlift" step="0.5" min="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="total">Total (Optional)</label>
+                            <div class="lift-input">
+                                <input type="number" id="total" name="total" step="0.5" min="0" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="calculate-btn">Calculate My Rankings</button>
+            </form>
+            
+            <div id="results" class="results">
+                <h3>Your Strength Rankings</h3>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Data based on analysis of competitive powerlifting results | <a href="#">Join Strength Intel Newsletter</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Weight classes for each gender and age class
+        const weightClasses = {
+            male: {
+                junior: ['53', '59', '66', '74', '83', '93', '105', '120', '120+'],
+                open: ['59', '66', '74', '83', '93', '105', '120', '120+'],
+                masters: ['59', '66', '74', '83', '93', '105', '120', '120+']
+            },
+            female: {
+                junior: ['43', '47', '52', '57', '63', '69', '76', '84', '84+'],
+                open: ['47', '52', '57', '63', '69', '76', '84', '84+'],
+                masters: ['47', '52', '57', '63', '69', '76', '84', '84+']
+            }
+        };
+
+        // Sample percentile data - Replace with your actual data from OpenPowerlifting analysis
+        // Structure: [gender][ageClass][weightClass][lift] = percentiles array [10th, 25th, 50th, 75th, 90th]
+        const strengthStandards = {
+            male: {
+                'junior': {
+                    '53': {
+                        squat: [90, 110, 130, 150, 175],
+                        bench: [60, 75, 90, 105, 125],
+                        deadlift: [110, 135, 160, 185, 215],
+                        total: [260, 320, 380, 440, 515]
+                    },
+                    '74': {
+                        squat: [115, 135, 160, 185, 215],
+                        bench: [75, 90, 110, 130, 155],
+                        deadlift: [135, 165, 195, 225, 260],
+                        total: [325, 390, 465, 540, 630]
+                    },
+                    '83': {
+                        squat: [130, 155, 180, 210, 245],
+                        bench: [85, 105, 125, 145, 170],
+                        deadlift: [155, 185, 215, 250, 290],
+                        total: [370, 445, 520, 605, 705]
+                    }
+                },
+                'open': {
+                    '74': {
+                        squat: [120, 140, 165, 190, 220],
+                        bench: [80, 95, 115, 135, 160],
+                        deadlift: [140, 170, 200, 230, 270],
+                        total: [340, 405, 480, 555, 650]
+                    },
+                    '83': {
+                        squat: [135, 160, 185, 215, 250],
+                        bench: [90, 110, 130, 150, 175],
+                        deadlift: [160, 190, 220, 255, 295],
+                        total: [385, 460, 535, 620, 720]
+                    },
+                    '93': {
+                        squat: [150, 175, 205, 235, 270],
+                        bench: [100, 120, 140, 165, 190],
+                        deadlift: [175, 205, 240, 275, 315],
+                        total: [425, 500, 585, 675, 775]
+                    }
+                },
+                'masters': {
+                    '74': {
+                        squat: [100, 120, 145, 170, 200],
+                        bench: [70, 85, 105, 125, 150],
+                        deadlift: [120, 150, 180, 210, 250],
+                        total: [290, 355, 430, 505, 600]
+                    },
+                    '83': {
+                        squat: [115, 140, 165, 195, 230],
+                        bench: [80, 100, 120, 140, 165],
+                        deadlift: [140, 170, 200, 235, 275],
+                        total: [335, 410, 485, 570, 670]
+                    }
+                }
+            },
+            female: {
+                'junior': {
+                    '43': {
+                        squat: [50, 65, 80, 95, 115],
+                        bench: [30, 40, 50, 60, 75],
+                        deadlift: [65, 80, 100, 120, 145],
+                        total: [145, 185, 230, 275, 335]
+                    },
+                    '57': {
+                        squat: [65, 80, 100, 120, 145],
+                        bench: [35, 45, 60, 75, 90],
+                        deadlift: [80, 100, 125, 150, 180],
+                        total: [180, 225, 285, 345, 415]
+                    }
+                },
+                'open': {
+                    '57': {
+                        squat: [70, 85, 105, 125, 150],
+                        bench: [40, 50, 65, 80, 95],
+                        deadlift: [85, 105, 130, 155, 185],
+                        total: [195, 240, 300, 360, 430]
+                    },
+                    '63': {
+                        squat: [80, 95, 115, 140, 165],
+                        bench: [45, 55, 70, 85, 105],
+                        deadlift: [95, 115, 140, 170, 200],
+                        total: [220, 265, 325, 395, 470]
+                    }
+                },
+                'masters': {
+                    '57': {
+                        squat: [60, 75, 95, 115, 140],
+                        bench: [35, 45, 60, 75, 90],
+                        deadlift: [75, 95, 120, 145, 175],
+                        total: [170, 215, 275, 335, 405]
+                    }
+                }
+            }
+        };
+
+        function updateWeightClasses() {
+            const gender = document.getElementById('gender').value;
+            const ageClass = document.getElementById('ageClass').value;
+            const weightClassSelect = document.getElementById('weightClass');
+            
+            weightClassSelect.innerHTML = '<option value="">Select Weight Class</option>';
+            
+            if (gender && ageClass && weightClasses[gender] && weightClasses[gender][ageClass]) {
+                weightClasses[gender][ageClass].forEach(weightClass => {
+                    const option = document.createElement('option');
+                    option.value = weightClass;
+                    option.textContent = weightClass + 'kg';
+                    weightClassSelect.appendChild(option);
+                });
+            }
+        }
+
+        function updateTotal() {
+            const squat = parseFloat(document.getElementById('squat').value) || 0;
+            const bench = parseFloat(document.getElementById('bench').value) || 0;
+            const deadlift = parseFloat(document.getElementById('deadlift').value) || 0;
+            
+            const total = squat + bench + deadlift;
+            document.getElementById('total').value = total > 0 ? total : '';
+        }
+
+        // Add event listeners to update total automatically
+        ['squat', 'bench', 'deadlift'].forEach(lift => {
+            document.getElementById(lift).addEventListener('input', updateTotal);
+        });
+
+        function getPercentile(value, percentiles) {
+            if (!value || !percentiles) return null;
+            
+            if (value <= percentiles[0]) return 10;
+            if (value <= percentiles[1]) return 25;
+            if (value <= percentiles[2]) return 50;
+            if (value <= percentiles[3]) return 75;
+            if (value <= percentiles[4]) return 90;
+            return 95;
+        }
+
+        function getPercentileClass(percentile) {
+            if (percentile >= 90) return 'percentile-excellent';
+            if (percentile >= 75) return 'percentile-very-good';
+            if (percentile >= 50) return 'percentile-good';
+            if (percentile >= 25) return 'percentile-average';
+            return 'percentile-below-average';
+        }
+
+        function getPercentileDescription(percentile) {
+            if (percentile >= 90) return 'Excellent (Top 10%)';
+            if (percentile >= 75) return 'Very Good (Top 25%)';
+            if (percentile >= 50) return 'Good (Top 50%)';
+            if (percentile >= 25) return 'Average (Top 75%)';
+            return 'Below Average';
+        }
+
+        document.getElementById('strengthForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            const gender = data.gender;
+            const ageClass = data.ageClass;
+            const weightClass = data.weightClass;
+            
+            // Get standards for this demographic
+            const standards = strengthStandards[gender]?.[ageClass]?.[weightClass] || 
+                            strengthStandards[gender]?.['open']?.[weightClass];
+            
+            if (!standards) {
+                alert('Sorry, we don\'t have data for this demographic yet. More categories coming soon!');
+                return;
+            }
+            
+            const results = [];
+            const lifts = ['squat', 'bench', 'deadlift', 'total'];
+            const liftNames = ['Squat', 'Bench Press', 'Deadlift', 'Total'];
+            
+            lifts.forEach((lift, index) => {
+                const value = parseFloat(data[lift]);
+                if (value && standards[lift]) {
+                    const percentile = getPercentile(value, standards[lift]);
+                    results.push({
+                        lift: liftNames[index],
+                        value: value,
+                        percentile: percentile,
+                        description: getPercentileDescription(percentile),
+                        class: getPercentileClass(percentile)
+                    });
+                }
+            });
+            
+            displayResults(data.name, results);
+        });
+
+        function displayResults(name, results) {
+            const resultsDiv = document.getElementById('results');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            let html = `<p style="margin-bottom: 20px; font-size: 1.1rem;"><strong>Results for ${name}</strong></p>`;
+            
+            results.forEach(result => {
+                html += `
+                    <div class="result-item">
+                        <div>
+                            <span class="result-lift">${result.lift}</span>
+                            <div style="font-size: 0.9rem; color: #7f8c8d;">${result.value}kg</div>
+                        </div>
+                        <div class="result-percentile ${result.class}">
+                            ${result.description}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #2a5298;">
+                    <p style="font-size: 0.95rem; line-height: 1.5; margin: 0;">
+                        <strong>Want more insights like this?</strong> Join our Strength Intel newsletter for bi-weekly analysis of powerlifting data, training insights, and advanced programming strategies.
+                    </p>
+                </div>
+            `;
+            
+            resultsContent.innerHTML = html;
+            resultsDiv.style.display = 'block';
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
