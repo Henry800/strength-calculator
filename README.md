@@ -1,0 +1,2 @@
+# strength-calculator
+comparison tool
