@@ -1192,16 +1192,22 @@
                 `;
             });
             
-            // Add lift breakdown if all three lifts are present
+            // Add lift breakdown if all three main lifts are present
             const squatResult = results.find(r => r.lift === 'Squat');
             const benchResult = results.find(r => r.lift === 'Bench Press');
             const deadliftResult = results.find(r => r.lift === 'Deadlift');
+            
+            console.log('Squat result:', squatResult);
+            console.log('Bench result:', benchResult);
+            console.log('Deadlift result:', deadliftResult);
             
             if (squatResult && benchResult && deadliftResult) {
                 const total = squatResult.value + benchResult.value + deadliftResult.value;
                 const squatPercent = Math.round((squatResult.value / total) * 100);
                 const benchPercent = Math.round((benchResult.value / total) * 100);
                 const deadliftPercent = 100 - squatPercent - benchPercent; // Ensure total is 100%
+                
+                console.log('Adding breakdown bar');
                 
                 html += `
                     <div class="lift-breakdown">
@@ -1233,6 +1239,8 @@
                         </div>
                     </div>
                 `;
+            } else {
+                console.log('Not all three lifts present for breakdown');
             }
             
             html += `
