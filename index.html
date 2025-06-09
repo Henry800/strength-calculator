@@ -1023,40 +1023,38 @@
             
             // Draw each lift result
             resultsData.forEach((result) => {
-                if (result.lift !== 'Total') {
-                    // Lift name and weight
-                    ctx.fillStyle = 'white';
-                    ctx.font = 'bold 40px Arial';
-                    ctx.textAlign = 'left';
-                    ctx.fillText(result.lift, 80, yPos);
-                    ctx.font = '32px Arial';
-                    ctx.fillText(`${result.value}kg`, 80, yPos + 45);
-                    
-                    // Percentile badge
-                    const badgeX = 500;
-                    const badgeY = yPos - 20;
-                    const badgeWidth = 480;
-                    const badgeHeight = 70;
-                    
-                    // Badge background color
-                    let badgeColor = '#e74c3c';
-                    if (result.percentile >= 90) badgeColor = '#27ae60';
-                    else if (result.percentile >= 75) badgeColor = '#2ecc71';
-                    else if (result.percentile >= 50) badgeColor = '#f39c12';
-                    else if (result.percentile >= 25) badgeColor = '#e67e22';
-                    
-                    // Draw badge with rounded corners
-                    ctx.fillStyle = badgeColor;
-                    ctx.fillRect(badgeX, badgeY, badgeWidth, badgeHeight);
-                    
-                    // Badge text
-                    ctx.fillStyle = 'white';
-                    ctx.font = 'bold 28px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(result.description, badgeX + badgeWidth/2, badgeY + 45);
-                    
-                    yPos += 130;
-                }
+                // Lift name and weight
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 40px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(result.lift, 80, yPos);
+                ctx.font = '32px Arial';
+                ctx.fillText(`${result.value}kg`, 80, yPos + 45);
+                
+                // Percentile badge
+                const badgeX = 500;
+                const badgeY = yPos - 20;
+                const badgeWidth = 480;
+                const badgeHeight = 70;
+                
+                // Badge background color
+                let badgeColor = '#e74c3c';
+                if (result.percentile >= 90) badgeColor = '#27ae60';
+                else if (result.percentile >= 75) badgeColor = '#2ecc71';
+                else if (result.percentile >= 50) badgeColor = '#f39c12';
+                else if (result.percentile >= 25) badgeColor = '#e67e22';
+                
+                // Draw badge with rounded corners
+                ctx.fillStyle = badgeColor;
+                ctx.fillRect(badgeX, badgeY, badgeWidth, badgeHeight);
+                
+                // Badge text
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 28px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(result.description, badgeX + badgeWidth/2, badgeY + 45);
+                
+                yPos += 130;
             });
             
             // Add breakdown bar if all three lifts are present
