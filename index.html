@@ -226,6 +226,10 @@
             touch-action: manipulation;
         }
         
+        .export-hidden {
+            display: none;
+        }
+        
         .export-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(225, 48, 108, 0.3);
@@ -481,7 +485,7 @@
             <div id="results" class="results">
                 <h3>Your Strength Rankings</h3>
                 <div id="resultsContent"></div>
-                <button id="exportBtn" class="export-btn" style="display: none;" onclick="exportToInstagram()">
+                <button id="exportBtn" class="export-btn export-hidden" onclick="exportToInstagram()">
                     📸 Export for Instagram
                 </button>
             </div>
@@ -1061,7 +1065,7 @@
             
             resultsContent.innerHTML = html;
             resultsDiv.style.display = 'block';
-            exportBtn.style.display = 'block'; // Show export button
+            exportBtn.classList.remove('export-hidden'); // Show export button
             resultsDiv.scrollIntoView({ behavior: 'smooth' });
         }
     </script>
