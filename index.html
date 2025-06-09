@@ -571,7 +571,7 @@
         </div>
         
         <!-- Hidden canvas for image generation -->
-        <canvas id="exportCanvas" width="1080" height="1080" style="display: none;"></canvas>
+        <canvas id="exportCanvas" width="1080" height="1920" style="display: none;"></canvas>
         
         <div class="footer">
             <p>Data based on analysis of competitive powerlifting results | <a href="#">Join Strength Intel Newsletter</a></p>
@@ -980,14 +980,14 @@
             const ctx = canvas.getContext('2d');
             
             // Clear canvas
-            ctx.clearRect(0, 0, 1080, 1080);
+            ctx.clearRect(0, 0, 1080, 1920);
             
             // Background gradient
-            const gradient = ctx.createLinearGradient(0, 0, 1080, 1080);
+            const gradient = ctx.createLinearGradient(0, 0, 1080, 1920);
             gradient.addColorStop(0, '#1e3c72');
             gradient.addColorStop(1, '#2a5298');
             ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, 1080, 1080);
+            ctx.fillRect(0, 0, 1080, 1920);
             
             // Get current results data
             const name = document.getElementById('name').value;
@@ -997,63 +997,66 @@
             
             // Brand header
             ctx.fillStyle = 'white';
-            ctx.font = 'bold 72px Arial';
+            ctx.font = 'bold 80px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('STRENGTH ANALYTICS', 540, 120);
+            ctx.fillText('STRENGTH ANALYTICS', 540, 150);
+            
+            ctx.font = '40px Arial';
+            ctx.fillText('Powerlifting Standards Report', 540, 220);
+            
+            // User info section
+            ctx.font = 'bold 60px Arial';
+            ctx.fillText(name.toUpperCase(), 540, 350);
             
             ctx.font = '36px Arial';
-            ctx.fillText('Powerlifting Standards Report', 540, 180);
-            
-            // User info
-            ctx.font = 'bold 48px Arial';
-            ctx.fillText(name.toUpperCase(), 540, 280);
-            
-            ctx.font = '32px Arial';
             ctx.fillStyle = 'rgba(255,255,255,0.9)';
-            ctx.fillText(`${gender.charAt(0).toUpperCase() + gender.slice(1)} • ${ageClass} • ${weightClass}kg`, 540, 330);
+            ctx.fillText(`${gender.charAt(0).toUpperCase() + gender.slice(1)} • ${ageClass} • ${weightClass}kg`, 540, 410);
             
             // Results section
             const resultsData = window.lastResults || [];
-            let yPos = 420;
+            let yPos = 520;
             
             ctx.fillStyle = 'white';
-            ctx.font = 'bold 40px Arial';
+            ctx.font = 'bold 50px Arial';
             ctx.fillText('YOUR RANKINGS', 540, yPos);
-            yPos += 80;
+            yPos += 100;
             
             // Draw each lift result
             resultsData.forEach((result) => {
-                // Lift name and weight
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 36px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText(result.lift, 120, yPos);
-                ctx.fillText(`${result.value}kg`, 120, yPos + 45);
-                
-                // Percentile badge
-                const badgeX = 600;
-                const badgeY = yPos - 15;
-                const badgeWidth = 360;
-                const badgeHeight = 60;
-                
-                // Badge background color
-                let badgeColor = '#e74c3c'; // default red
-                if (result.percentile >= 90) badgeColor = '#27ae60';
-                else if (result.percentile >= 75) badgeColor = '#2ecc71';
-                else if (result.percentile >= 50) badgeColor = '#f39c12';
-                else if (result.percentile >= 25) badgeColor = '#e67e22';
-                
-                // Draw badge
-                ctx.fillStyle = badgeColor;
-                ctx.fillRect(badgeX, badgeY, badgeWidth, badgeHeight);
-                
-                // Badge text
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 28px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(result.description, badgeX + badgeWidth/2, badgeY + 40);
-                
-                yPos += 120;
+                if (result.lift !== 'Total') {
+                    // Lift name and weight
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 40px Arial';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(result.lift, 80, yPos);
+                    ctx.font = '32px Arial';
+                    ctx.fillText(`${result.value}kg`, 80, yPos + 45);
+                    
+                    // Percentile badge
+                    const badgeX = 500;
+                    const badgeY = yPos - 20;
+                    const badgeWidth = 480;
+                    const badgeHeight = 70;
+                    
+                    // Badge background color
+                    let badgeColor = '#e74c3c';
+                    if (result.percentile >= 90) badgeColor = '#27ae60';
+                    else if (result.percentile >= 75) badgeColor = '#2ecc71';
+                    else if (result.percentile >= 50) badgeColor = '#f39c12';
+                    else if (result.percentile >= 25) badgeColor = '#e67e22';
+                    
+                    // Draw badge with rounded corners
+                    ctx.fillStyle = badgeColor;
+                    ctx.fillRect(badgeX, badgeY, badgeWidth, badgeHeight);
+                    
+                    // Badge text
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 28px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(result.description, badgeX + badgeWidth/2, badgeY + 45);
+                    
+                    yPos += 130;
+                }
             });
             
             // Add breakdown bar if all three lifts are present
@@ -1067,18 +1070,22 @@
                 const benchPercent = (benchResult.value / total) * 100;
                 const deadliftPercent = (deadliftResult.value / total) * 100;
                 
+                yPos += 60;
+                
                 // Breakdown section title
                 ctx.fillStyle = 'white';
-                ctx.font = 'bold 32px Arial';
+                ctx.font = 'bold 44px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText(`TOTAL BREAKDOWN (${total}kg)`, 540, yPos + 30);
-                yPos += 80;
+                ctx.fillText('TOTAL BREAKDOWN', 540, yPos);
+                ctx.font = '36px Arial';
+                ctx.fillText(`${total}kg Total`, 540, yPos + 50);
+                yPos += 100;
                 
-                // Draw breakdown bar
-                const barX = 120;
+                // Draw breakdown bar (larger for story format)
+                const barX = 80;
                 const barY = yPos;
-                const barWidth = 840;
-                const barHeight = 50;
+                const barWidth = 920;
+                const barHeight = 80;
                 
                 // Squat segment
                 const squatWidth = (barWidth * squatPercent) / 100;
@@ -1097,33 +1104,58 @@
                 
                 // Add percentages on segments
                 ctx.fillStyle = 'white';
-                ctx.font = 'bold 24px Arial';
+                ctx.font = 'bold 28px Arial';
                 ctx.textAlign = 'center';
                 
-                if (squatWidth > 60) {
-                    ctx.fillText(`${Math.round(squatPercent)}%`, barX + squatWidth/2, barY + 35);
+                if (squatWidth > 100) {
+                    ctx.fillText(`${Math.round(squatPercent)}%`, barX + squatWidth/2, barY + 50);
                 }
-                if (benchWidth > 60) {
-                    ctx.fillText(`${Math.round(benchPercent)}%`, barX + squatWidth + benchWidth/2, barY + 35);
+                if (benchWidth > 100) {
+                    ctx.fillText(`${Math.round(benchPercent)}%`, barX + squatWidth + benchWidth/2, barY + 50);
                 }
-                if (deadliftWidth > 60) {
-                    ctx.fillText(`${Math.round(deadliftPercent)}%`, barX + squatWidth + benchWidth + deadliftWidth/2, barY + 35);
+                if (deadliftWidth > 100) {
+                    ctx.fillText(`${Math.round(deadliftPercent)}%`, barX + squatWidth + benchWidth + deadliftWidth/2, barY + 50);
                 }
                 
-                yPos += 80;
+                // Legend below bar (vertical layout for story)
+                yPos += 120;
+                ctx.font = '32px Arial';
+                ctx.textAlign = 'left';
+                
+                // Squat
+                ctx.fillStyle = '#e74c3c';
+                ctx.fillRect(80, yPos, 30, 30);
+                ctx.fillStyle = 'white';
+                ctx.fillText(`Squat: ${squatResult.value}kg (${Math.round(squatPercent)}%)`, 130, yPos + 25);
+                
+                // Bench
+                yPos += 60;
+                ctx.fillStyle = '#3498db';
+                ctx.fillRect(80, yPos, 30, 30);
+                ctx.fillStyle = 'white';
+                ctx.fillText(`Bench: ${benchResult.value}kg (${Math.round(benchPercent)}%)`, 130, yPos + 25);
+                
+                // Deadlift
+                yPos += 60;
+                ctx.fillStyle = '#27ae60';
+                ctx.fillRect(80, yPos, 30, 30);
+                ctx.fillStyle = 'white';
+                ctx.fillText(`Deadlift: ${deadliftResult.value}kg (${Math.round(deadliftPercent)}%)`, 130, yPos + 25);
+                
+                yPos += 100;
             }
             
-            // Footer call to action (adjust position based on content)
-            const footerY = yPos > 800 ? 1020 : 950;
-            ctx.fillStyle = 'rgba(255,255,255,0.8)';
-            ctx.font = '28px Arial';
+            // Footer call to action (plenty of space at bottom)
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.font = '36px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('Follow us on Instagram', 540, footerY);
-            ctx.fillText('@strength_analytics', 540, footerY + 40);
+            ctx.fillText('Follow us on Instagram', 540, 1780);
+            ctx.font = 'bold 40px Arial';
+            ctx.fillText('@strength_analytics', 540, 1840);
             
             // Download the image
             const link = document.createElement('a');
-            link.download = `${name.replace(/\s+/g, '_')}_strength_rankings.png`;
+            link.download = `${name.replace(/\s+/g, '_')}_strength_story.png`;
             link.href = canvas.toDataURL();
             link.click();
         }
