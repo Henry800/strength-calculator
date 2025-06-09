@@ -1016,6 +1016,8 @@
             const resultsData = window.lastResults || [];
             let yPos = 520;
             
+            console.log('Export results data:', resultsData);
+            
             ctx.fillStyle = 'white';
             ctx.font = 'bold 50px Arial';
             ctx.fillText('YOUR RANKINGS', 540, yPos);
@@ -1023,6 +1025,7 @@
             
             // Draw each lift result
             resultsData.forEach((result) => {
+                console.log('Processing result:', result.lift);
                 // Lift name and weight
                 ctx.fillStyle = 'white';
                 ctx.font = 'bold 40px Arial';
@@ -1044,7 +1047,7 @@
                 else if (result.percentile >= 50) badgeColor = '#f39c12';
                 else if (result.percentile >= 25) badgeColor = '#e67e22';
                 
-                // Draw badge with rounded corners
+                // Draw badge
                 ctx.fillStyle = badgeColor;
                 ctx.fillRect(badgeX, badgeY, badgeWidth, badgeHeight);
                 
@@ -1183,6 +1186,7 @@
             
             lifts.forEach((lift, index) => {
                 const value = parseFloat(data[lift]);
+                console.log(`Processing ${lift}: value = ${value}, standards available = ${!!standards[lift]}`);
                 if (value && standards[lift]) {
                     const percentile = getPercentile(value, standards[lift]);
                     results.push({
@@ -1194,6 +1198,8 @@
                     });
                 }
             });
+            
+            console.log('Final results array:', results);
             
             displayResults(data.name, results);
         });
