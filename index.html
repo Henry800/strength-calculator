@@ -210,6 +210,27 @@
         .percentile-average { background: #e67e22; }
         .percentile-below-average { background: #e74c3c; }
         
+        .export-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #E1306C 0%, #F56040 50%, #FCAF45 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            min-height: 56px;
+            touch-action: manipulation;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(225, 48, 108, 0.3);
+        }
+        
         .footer {
             text-align: center;
             padding: 20px;
@@ -334,7 +355,8 @@
                 padding-right: 45px;
             }
             
-            .calculate-btn {
+            .calculate-btn,
+            .export-btn {
                 padding: 16px 24px;
                 font-size: 1rem;
                 margin-top: 15px;
@@ -459,8 +481,14 @@
             <div id="results" class="results">
                 <h3>Your Strength Rankings</h3>
                 <div id="resultsContent"></div>
+                <button id="exportBtn" class="export-btn" style="display: none;" onclick="exportToInstagram()">
+                    📸 Export for Instagram
+                </button>
             </div>
         </div>
+        
+        <!-- Hidden canvas for image generation -->
+        <canvas id="exportCanvas" width="1080" height="1080" style="display: none;"></canvas>
         
         <div class="footer">
             <p>Data based on analysis of competitive powerlifting results | <a href="#">Join Strength Intel Newsletter</a></p>
@@ -823,8 +851,13 @@
             const bench = parseFloat(document.getElementById('bench').value) || 0;
             const deadlift = parseFloat(document.getElementById('deadlift').value) || 0;
             
-            const total = squat + bench + deadlift;
-            document.getElementById('total').value = total > 0 ? total : '';
+            // Only calculate total if all three lifts have values
+            if (squat > 0 && bench > 0 && deadlift > 0) {
+                const total = squat + bench + deadlift;
+                document.getElementById('total').value = total;
+            } else {
+                document.getElementById('total').value = '';
+            }
         }
 
         // Add event listeners to update total automatically
@@ -857,6 +890,101 @@
             if (percentile >= 50) return 'Good (Top 50%)';
             if (percentile >= 25) return 'Average (Top 75%)';
             return 'Below Average';
+        }
+
+        function exportToInstagram() {
+            const canvas = document.getElementById('exportCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, 1080, 1080);
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 1080, 1080);
+            gradient.addColorStop(0, '#1e3c72');
+            gradient.addColorStop(1, '#2a5298');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 1080, 1080);
+            
+            // Get current results data
+            const name = document.getElementById('name').value;
+            const ageClass = document.getElementById('ageClass').value;
+            const weightClass = document.getElementById('weightClass').value;
+            const gender = document.getElementById('gender').value;
+            
+            // Brand header
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 72px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('STRENGTH ANALYTICS', 540, 120);
+            
+            ctx.font = '36px Arial';
+            ctx.fillText('Powerlifting Standards Report', 540, 180);
+            
+            // User info
+            ctx.font = 'bold 48px Arial';
+            ctx.fillText(name.toUpperCase(), 540, 280);
+            
+            ctx.font = '32px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.fillText(`${gender.charAt(0).toUpperCase() + gender.slice(1)} • ${ageClass} • ${weightClass}kg`, 540, 330);
+            
+            // Results section
+            const resultsData = window.lastResults || [];
+            let yPos = 420;
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 40px Arial';
+            ctx.fillText('YOUR RANKINGS', 540, yPos);
+            yPos += 80;
+            
+            // Draw each lift result
+            resultsData.forEach((result) => {
+                // Lift name and weight
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 36px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(result.lift, 120, yPos);
+                ctx.fillText(`${result.value}kg`, 120, yPos + 45);
+                
+                // Percentile badge
+                const badgeX = 600;
+                const badgeY = yPos - 15;
+                const badgeWidth = 360;
+                const badgeHeight = 60;
+                
+                // Badge background color
+                let badgeColor = '#e74c3c'; // default red
+                if (result.percentile >= 90) badgeColor = '#27ae60';
+                else if (result.percentile >= 75) badgeColor = '#2ecc71';
+                else if (result.percentile >= 50) badgeColor = '#f39c12';
+                else if (result.percentile >= 25) badgeColor = '#e67e22';
+                
+                // Draw badge
+                ctx.fillStyle = badgeColor;
+                ctx.fillRect(badgeX, badgeY, badgeWidth, badgeHeight);
+                
+                // Badge text
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 28px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(result.description, badgeX + badgeWidth/2, badgeY + 40);
+                
+                yPos += 120;
+            });
+            
+            // Footer call to action
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.font = '28px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Get your own ranking at', 540, 950);
+            ctx.fillText('strengthanalytics.com/calculator', 540, 990);
+            
+            // Download the image
+            const link = document.createElement('a');
+            link.download = `${name.replace(/\s+/g, '_')}_strength_rankings.png`;
+            link.href = canvas.toDataURL();
+            link.click();
         }
 
         document.getElementById('strengthForm').addEventListener('submit', function(e) {
@@ -902,6 +1030,10 @@
         function displayResults(name, results) {
             const resultsDiv = document.getElementById('results');
             const resultsContent = document.getElementById('resultsContent');
+            const exportBtn = document.getElementById('exportBtn');
+            
+            // Store results globally for export function
+            window.lastResults = results;
             
             let html = `<p style="margin-bottom: 20px; font-size: 1.1rem;"><strong>Results for ${name}</strong></p>`;
             
@@ -929,6 +1061,7 @@
             
             resultsContent.innerHTML = html;
             resultsDiv.style.display = 'block';
+            exportBtn.style.display = 'block'; // Show export button
             resultsDiv.scrollIntoView({ behavior: 'smooth' });
         }
     </script>
