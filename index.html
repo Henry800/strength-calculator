@@ -235,6 +235,67 @@
             box-shadow: 0 8px 25px rgba(225, 48, 108, 0.3);
         }
         
+        .lift-breakdown {
+            margin: 25px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid #2a5298;
+        }
+        
+        .lift-breakdown h4 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+        
+        .breakdown-bar {
+            display: flex;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        
+        .breakdown-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .breakdown-segment:hover {
+            filter: brightness(1.1);
+        }
+        
+        .squat-segment { background: #e74c3c; }
+        .bench-segment { background: #3498db; }
+        .deadlift-segment { background: #27ae60; }
+        
+        .breakdown-legend {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
         .footer {
             text-align: center;
             padding: 20px;
@@ -364,6 +425,24 @@
                 padding: 16px 24px;
                 font-size: 1rem;
                 margin-top: 15px;
+            }
+            
+            .breakdown-legend {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .breakdown-segment {
+                font-size: 0.8rem;
+            }
+            
+            .lift-breakdown {
+                padding: 15px;
+                margin: 20px 0;
+            }
+            
+            .lift-breakdown h4 {
+                font-size: 1rem;
             }
             
             .results {
@@ -977,12 +1056,70 @@
                 yPos += 120;
             });
             
-            // Footer call to action
+            // Add breakdown bar if all three lifts are present
+            const squatResult = resultsData.find(r => r.lift === 'Squat');
+            const benchResult = resultsData.find(r => r.lift === 'Bench Press');
+            const deadliftResult = resultsData.find(r => r.lift === 'Deadlift');
+            
+            if (squatResult && benchResult && deadliftResult) {
+                const total = squatResult.value + benchResult.value + deadliftResult.value;
+                const squatPercent = (squatResult.value / total) * 100;
+                const benchPercent = (benchResult.value / total) * 100;
+                const deadliftPercent = (deadliftResult.value / total) * 100;
+                
+                // Breakdown section title
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 32px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`TOTAL BREAKDOWN (${total}kg)`, 540, yPos + 30);
+                yPos += 80;
+                
+                // Draw breakdown bar
+                const barX = 120;
+                const barY = yPos;
+                const barWidth = 840;
+                const barHeight = 50;
+                
+                // Squat segment
+                const squatWidth = (barWidth * squatPercent) / 100;
+                ctx.fillStyle = '#e74c3c';
+                ctx.fillRect(barX, barY, squatWidth, barHeight);
+                
+                // Bench segment
+                const benchWidth = (barWidth * benchPercent) / 100;
+                ctx.fillStyle = '#3498db';
+                ctx.fillRect(barX + squatWidth, barY, benchWidth, barHeight);
+                
+                // Deadlift segment
+                const deadliftWidth = barWidth - squatWidth - benchWidth;
+                ctx.fillStyle = '#27ae60';
+                ctx.fillRect(barX + squatWidth + benchWidth, barY, deadliftWidth, barHeight);
+                
+                // Add percentages on segments
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 24px Arial';
+                ctx.textAlign = 'center';
+                
+                if (squatWidth > 60) {
+                    ctx.fillText(`${Math.round(squatPercent)}%`, barX + squatWidth/2, barY + 35);
+                }
+                if (benchWidth > 60) {
+                    ctx.fillText(`${Math.round(benchPercent)}%`, barX + squatWidth + benchWidth/2, barY + 35);
+                }
+                if (deadliftWidth > 60) {
+                    ctx.fillText(`${Math.round(deadliftPercent)}%`, barX + squatWidth + benchWidth + deadliftWidth/2, barY + 35);
+                }
+                
+                yPos += 80;
+            }
+            
+            // Footer call to action (adjust position based on content)
+            const footerY = yPos > 800 ? 1020 : 950;
             ctx.fillStyle = 'rgba(255,255,255,0.8)';
             ctx.font = '28px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('Get your own ranking at', 540, 950);
-            ctx.fillText('strengthanalytics.com/calculator', 540, 990);
+            ctx.fillText('Follow us on Instagram', 540, footerY);
+            ctx.fillText('@strength_analytics', 540, footerY + 40);
             
             // Download the image
             const link = document.createElement('a');
@@ -1054,6 +1191,49 @@
                     </div>
                 `;
             });
+            
+            // Add lift breakdown if all three lifts are present
+            const squatResult = results.find(r => r.lift === 'Squat');
+            const benchResult = results.find(r => r.lift === 'Bench Press');
+            const deadliftResult = results.find(r => r.lift === 'Deadlift');
+            
+            if (squatResult && benchResult && deadliftResult) {
+                const total = squatResult.value + benchResult.value + deadliftResult.value;
+                const squatPercent = Math.round((squatResult.value / total) * 100);
+                const benchPercent = Math.round((benchResult.value / total) * 100);
+                const deadliftPercent = 100 - squatPercent - benchPercent; // Ensure total is 100%
+                
+                html += `
+                    <div class="lift-breakdown">
+                        <h4>Total Breakdown (${total}kg)</h4>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-segment squat-segment" style="flex: ${squatPercent}">
+                                ${squatPercent}%
+                            </div>
+                            <div class="breakdown-segment bench-segment" style="flex: ${benchPercent}">
+                                ${benchPercent}%
+                            </div>
+                            <div class="breakdown-segment deadlift-segment" style="flex: ${deadliftPercent}">
+                                ${deadliftPercent}%
+                            </div>
+                        </div>
+                        <div class="breakdown-legend">
+                            <div class="legend-item">
+                                <div class="legend-color squat-segment"></div>
+                                <span>Squat: ${squatResult.value}kg</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color bench-segment"></div>
+                                <span>Bench: ${benchResult.value}kg</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color deadlift-segment"></div>
+                                <span>Deadlift: ${deadliftResult.value}kg</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
             
             html += `
                 <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #2a5298;">
