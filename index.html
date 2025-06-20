@@ -146,9 +146,39 @@
             touch-action: manipulation;
         }
         
-        .calculate-btn:hover {
+        .calculate-btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(42, 82, 152, 0.3);
+        }
+        
+        .calculate-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            position: relative;
+        }
+        
+        .loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s ease infinite;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
         
         .results {
@@ -677,38 +707,66 @@
         document.getElementById('strengthForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
+            // Get the button and add loading state
+            const calculateBtn = document.querySelector('.calculate-btn');
+            const resultsDiv = document.getElementById('results');
+            const originalBtnText = calculateBtn.textContent;
             
-            const gender = data.gender;
-            const ageClass = data.ageClass;
-            const weightClass = data.weightClass;
+            // Show loading state
+            calculateBtn.disabled = true;
+            calculateBtn.classList.add('loading');
+            calculateBtn.textContent = 'Calculating...';
             
-            const standards = strengthStandards[gender]?.[ageClass]?.[weightClass];
+            // Hide previous results while calculating
+            resultsDiv.style.display = 'none';
             
-            if (!standards) {
-                alert('Sorry, we don\'t have data for this demographic yet.');
-                return;
-            }
-            
-            const results = [];
-            const lifts = ['squat', 'bench', 'deadlift', 'total'];
-            const liftNames = ['Squat', 'Bench Press', 'Deadlift', 'Total'];
-            
-            lifts.forEach((lift, index) => {
-                const value = parseFloat(data[lift]);
-                if (value && standards[lift]) {
-                    const ranking = calculateRanking(value, standards[lift]);
-                    results.push({
-                        lift: liftNames[index],
-                        value: value,
-                        rank: ranking.rank,
-                        label: ranking.label
-                    });
+            // Small delay to show loading state (optional - makes it feel more responsive)
+            setTimeout(() => {
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData);
+                
+                const gender = data.gender;
+                const ageClass = data.ageClass;
+                const weightClass = data.weightClass;
+                
+                const standards = strengthStandards[gender]?.[ageClass]?.[weightClass];
+                
+                if (!standards) {
+                    // Reset button state
+                    calculateBtn.disabled = false;
+                    calculateBtn.classList.remove('loading');
+                    calculateBtn.textContent = originalBtnText;
+                    
+                    alert('Sorry, we don\'t have data for this demographic yet.');
+                    return;
                 }
-            });
-            
-            displayResults(data.name, results);
+                
+                const results = [];
+                const lifts = ['squat', 'bench', 'deadlift', 'total'];
+                const liftNames = ['Squat', 'Bench Press', 'Deadlift', 'Total'];
+                
+                lifts.forEach((lift, index) => {
+                    const value = parseFloat(data[lift]);
+                    if (value && standards[lift]) {
+                        const ranking = calculateRanking(value, standards[lift]);
+                        results.push({
+                            lift: liftNames[index],
+                            value: value,
+                            rank: ranking.rank,
+                            label: ranking.label
+                        });
+                    }
+                });
+                
+                // Reset button state and update text
+                calculateBtn.disabled = false;
+                calculateBtn.classList.remove('loading');
+                calculateBtn.textContent = 'Recalculate Rankings';
+                
+                // Display new results
+                displayResults(data.name, results);
+                
+            }, 300); // Small delay for better UX
         });
 
         function displayResults(name, results) {
@@ -716,7 +774,11 @@
             const resultsContent = document.getElementById('resultsContent');
             const exportBtn = document.getElementById('exportBtn');
             
+            // Store results globally for export function
             window.lastResults = results;
+            
+            // Clear previous content
+            resultsContent.innerHTML = '';
             
             let html = `<p style="margin-bottom: 20px; font-size: 1.1rem;"><strong>Results for ${name}</strong></p>`;
             
@@ -784,10 +846,15 @@
                 </div>
             `;
             
+            // Update content and show results
             resultsContent.innerHTML = html;
             resultsDiv.style.display = 'block';
             exportBtn.classList.remove('export-hidden');
-            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+            
+            // Smooth scroll to results after a brief delay
+            setTimeout(() => {
+                resultsDiv.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
         }
     </script>
 </body>
