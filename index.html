@@ -603,19 +603,14 @@
         function calculateRanking(value, percentiles) {
             if (!value || !percentiles) return null;
             
-            // If exactly at a percentile threshold, bump to higher category
-            if (value === percentiles[4]) return { rank: 'world-class', label: 'World Class (Top 1%)' };
-            if (value === percentiles[3]) return { rank: 'world-class', label: 'World Class (Top 1%)' };
-            if (value === percentiles[2]) return { rank: 'elite', label: 'Elite (Top 5%)' };
-            if (value === percentiles[1]) return { rank: 'strong', label: 'Strong (Top 10%)' };
-            if (value === percentiles[0]) return { rank: 'good', label: 'Good (Top 25%)' };
+            // percentiles = [50th, 75th, 90th, 95th, 99th]
+            // If exactly at a percentile threshold, put them in that tier (not bump up)
             
-            // Between percentiles
-            if (value > percentiles[4]) return { rank: 'world-class', label: 'World Class (Top 1%)' };
-            if (value > percentiles[3]) return { rank: 'elite', label: 'Elite (Top 5%)' };
-            if (value > percentiles[2]) return { rank: 'strong', label: 'Strong (Top 10%)' };
-            if (value > percentiles[1]) return { rank: 'good', label: 'Good (Top 25%)' };
-            if (value > percentiles[0]) return { rank: 'above-average', label: 'Above Average (Top 50%)' };
+            if (value >= percentiles[4]) return { rank: 'world-class', label: 'World Class (Top 1%)' };
+            if (value >= percentiles[3]) return { rank: 'elite', label: 'Elite (Top 5%)' };
+            if (value >= percentiles[2]) return { rank: 'strong', label: 'Strong (Top 10%)' };
+            if (value >= percentiles[1]) return { rank: 'good', label: 'Good (Top 25%)' };
+            if (value >= percentiles[0]) return { rank: 'above-average', label: 'Above Average (Top 50%)' };
             
             return { rank: 'below-average', label: 'Below Average' };
         }
