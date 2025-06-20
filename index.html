@@ -603,15 +603,32 @@
         function calculateRanking(value, percentiles) {
             if (!value || !percentiles) return null;
             
+            // Debug logging
+            console.log(`Debug: value=${value}, percentiles=[${percentiles.join(', ')}]`);
+            
             // percentiles = [50th, 75th, 90th, 95th, 99th]
-            // If exactly at a percentile threshold, put them in that tier (not bump up)
+            if (value >= percentiles[4]) {
+                console.log(`Returning World Class (${value} >= ${percentiles[4]})`);
+                return { rank: 'world-class', label: 'World Class (Top 1%)' };
+            }
+            if (value >= percentiles[3]) {
+                console.log(`Returning Elite (${value} >= ${percentiles[3]})`);
+                return { rank: 'elite', label: 'Elite (Top 5%)' };
+            }
+            if (value >= percentiles[2]) {
+                console.log(`Returning Strong (${value} >= ${percentiles[2]})`);
+                return { rank: 'strong', label: 'Strong (Top 10%)' };
+            }
+            if (value >= percentiles[1]) {
+                console.log(`Returning Good (${value} >= ${percentiles[1]})`);
+                return { rank: 'good', label: 'Good (Top 25%)' };
+            }
+            if (value >= percentiles[0]) {
+                console.log(`Returning Above Average (${value} >= ${percentiles[0]})`);
+                return { rank: 'above-average', label: 'Above Average (Top 50%)' };
+            }
             
-            if (value >= percentiles[4]) return { rank: 'world-class', label: 'World Class (Top 1%)' };
-            if (value >= percentiles[3]) return { rank: 'elite', label: 'Elite (Top 5%)' };
-            if (value >= percentiles[2]) return { rank: 'strong', label: 'Strong (Top 10%)' };
-            if (value >= percentiles[1]) return { rank: 'good', label: 'Good (Top 25%)' };
-            if (value >= percentiles[0]) return { rank: 'above-average', label: 'Above Average (Top 50%)' };
-            
+            console.log(`Returning Below Average (${value} < ${percentiles[0]})`);
             return { rank: 'below-average', label: 'Below Average' };
         }
 
