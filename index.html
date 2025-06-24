@@ -413,6 +413,7 @@
                             <option value="junior">Junior (14-23)</option>
                             <option value="open">Open (All Ages)</option>
                             <option value="masters">Masters (40+)</option>
+                            <option value="jungle">Jungle (All Ages & Weights)</option>
                         </select>
                     </div>
                 </div>
@@ -491,13 +492,15 @@
                 'sub-junior': ['59', '66', '74', '83', '93', '105', '120', '120+'],
                 junior: ['59', '66', '74', '83', '93', '105', '120', '120+'],
                 open: ['59', '66', '74', '83', '93', '105', '120', '120+'],
-                masters: ['59', '66', '74', '83', '93', '105', '120', '120+']
+                masters: ['59', '66', '74', '83', '93', '105', '120', '120+'],
+                jungle: ['Jungle']
             },
             female: {
                 'sub-junior': ['47', '52', '57', '63', '69', '76', '84', '84+'],
                 junior: ['47', '52', '57', '63', '69', '76', '84', '84+'],
                 open: ['47', '52', '57', '63', '69', '76', '84', '84+'],
-                masters: ['47', '52', '57', '63', '69', '76', '84', '84+']
+                masters: ['47', '52', '57', '63', '69', '76', '84', '84+'],
+                jungle: ['Jungle']
             }
         };
 
@@ -544,6 +547,9 @@
                     '105': { total: [600, 665, 725, 762.5, 810], squat: [220, 247.5, 270, 282.5, 305], bench: [135, 155, 172.5, 182.5, 200], deadlift: [245, 272.5, 295, 307.5, 330] },
                     '120': { total: [627.5, 697.5, 760, 800, 872.5], squat: [235, 262.5, 287.5, 300, 330], bench: [145, 162.5, 182.5, 195, 215], deadlift: [250, 280, 305, 320, 350] },
                     '120+': { total: [635, 722.5, 800, 852.5, 930], squat: [242.5, 275, 310, 340, 375], bench: [150, 172.5, 197.5, 210, 237.5], deadlift: [245, 280, 310, 327.5, 350] }
+                },
+                jungle: {
+                    'Jungle': { total: [555, 635, 708.3, 755, 850], squat: [200, 230, 261, 280, 320], bench: [127.5, 150, 170, 185, 211.5], deadlift: [227.5, 257.5, 285, 302.5, 336] }
                 }
             },
             female: {
@@ -586,6 +592,9 @@
                     '76': { total: [345, 392.5, 430, 455, 497.5], squat: [130, 147.5, 165, 172.5, 195], bench: [70, 80, 90, 97.5, 115], deadlift: [150, 167.5, 185, 192.5, 212.5] },
                     '84': { total: [360, 397.5, 440, 470, 527.5], squat: [135, 152.5, 170, 182.5, 205], bench: [70, 82.5, 92.5, 97.5, 122.5], deadlift: [155, 170, 187.5, 197.5, 222.5] },
                     '84+': { total: [367.5, 420, 475, 497.5, 577.5], squat: [142.5, 165, 192.5, 205, 240], bench: [70, 85, 100, 107.5, 125], deadlift: [155, 175, 190, 205, 227.5] }
+                },
+                jungle: {
+                    'Jungle': { total: [325, 375, 422.5, 453.5, 521.5], squat: [120, 140, 160, 172.5, 200], bench: [65, 77.5, 90, 97.5, 115], deadlift: [140, 160, 180, 190, 215] }
                 }
             }
         };
@@ -601,7 +610,8 @@
                 weightClasses[gender][ageClass].forEach(weightClass => {
                     const option = document.createElement('option');
                     option.value = weightClass;
-                    option.textContent = weightClass + 'kg';
+                    // For jungle, don't add 'kg' suffix
+                    option.textContent = weightClass === 'Jungle' ? 'Jungle (All Ages & Weights)' : weightClass + 'kg';
                     weightClassSelect.appendChild(option);
                 });
             }
@@ -688,8 +698,10 @@
             ctx.fillStyle = 'rgba(255,255,255,0.9)';
             const ageLabel = ageClass === 'sub-junior' ? 'Sub-Junior' : 
                            ageClass === 'open' ? 'Open' : 
+                           ageClass === 'jungle' ? 'Jungle' :
                            ageClass.charAt(0).toUpperCase() + ageClass.slice(1);
-            ctx.fillText(`${gender.charAt(0).toUpperCase() + gender.slice(1)} • ${ageLabel} • ${weightClass}kg`, 540, 410);
+            const weightLabel = weightClass === 'Jungle' ? 'All Ages & Weights' : weightClass + 'kg';
+            ctx.fillText(`${gender.charAt(0).toUpperCase() + gender.slice(1)} • ${ageLabel} • ${weightLabel}`, 540, 410);
             
             const resultsData = window.lastResults || [];
             let yPos = 520;
