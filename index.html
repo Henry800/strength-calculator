@@ -220,12 +220,12 @@
             color: white;
         }
         
-        .world-class { background: #27ae60; }
-        .elite { background: #2ecc71; }
-        .strong { background: #f39c12; }
-        .good { background: #e67e22; }
-        .above-average { background: #95a5a6; }
-        .below-average { background: #e74c3c; }
+        .world-class { background: #4CAF50; } /* Green */
+        .elite { background: #8BC34A; } /* Light Green */
+        .strong { background: #CDDC39; } /* Lime */
+        .good { background: #FFC107; } /* Amber */
+        .above-average { background: #FF9800; } /* Orange */
+        .below-average { background: #F44336; } /* Red */
         
         .lift-breakdown {
             margin: 25px 0;
@@ -409,8 +409,9 @@
                         <label for="ageClass">Age Class</label>
                         <select id="ageClass" name="ageClass" required onchange="updateWeightClasses()">
                             <option value="">Select Age Class</option>
+                            <option value="sub-junior">Sub-Junior (13-18)</option>
                             <option value="junior">Junior (14-23)</option>
-                            <option value="open">Open (24-39)</option>
+                            <option value="open">Open (All Ages)</option>
                             <option value="masters">Masters (40+)</option>
                         </select>
                     </div>
@@ -487,11 +488,13 @@
         // Weight classes for each gender and age class
         const weightClasses = {
             male: {
+                'sub-junior': ['59', '66', '74', '83', '93', '105', '120', '120+'],
                 junior: ['59', '66', '74', '83', '93', '105', '120', '120+'],
                 open: ['59', '66', '74', '83', '93', '105', '120', '120+'],
                 masters: ['59', '66', '74', '83', '93', '105', '120', '120+']
             },
             female: {
+                'sub-junior': ['47', '52', '57', '63', '69', '76', '84', '84+'],
                 junior: ['47', '52', '57', '63', '69', '76', '84', '84+'],
                 open: ['47', '52', '57', '63', '69', '76', '84', '84+'],
                 masters: ['47', '52', '57', '63', '69', '76', '84', '84+']
@@ -499,8 +502,19 @@
         };
 
         // Complete OpenPowerlifting data - [50th, 75th, 90th, 95th, 99th percentiles]
+        // NOTE: Sub-junior data needs to be added from your spreadsheet
         const strengthStandards = {
             male: {
+                'sub-junior': {
+                    '59': { total: [390, 442.5, 477.5, 505, 547.5], squat: [135, 160, 172.5, 180, 200], bench: [85, 95, 107.5, 112.5, 130], deadlift: [170, 190, 210, 215, 260] },
+                    '66': { total: [427.5, 472.5, 517.5, 537.5, 590], squat: [152.5, 170, 187.5, 197.5, 230], bench: [92.5, 105, 117.5, 122.5, 135], deadlift: [182.5, 205, 220, 230, 257.5] },
+                    '74': { total: [462.5, 515, 552.5, 577.5, 620], squat: [165, 185, 202.5, 212.5, 227.5], bench: [102.5, 115, 127.5, 135, 145], deadlift: [195, 217.5, 235, 242.5, 275] },
+                    '83': { total: [492.5, 547.5, 592.5, 622.5, 677.5], squat: [177.5, 200, 217.5, 230, 255], bench: [110, 122.5, 137.5, 145, 162.5], deadlift: [207.5, 230, 250, 260, 290] },
+                    '93': { total: [525, 582.5, 635, 665, 715], squat: [190, 215, 235, 245, 270], bench: [115, 132.5, 145, 157.5, 175], deadlift: [217.5, 242.5, 262.5, 272.5, 300] },
+                    '105': { total: [537.5, 595, 652.5, 677.5, 755], squat: [197.5, 220, 245, 255, 282.5], bench: [120, 135, 152.5, 162.5, 185], deadlift: [225, 245, 265, 280, 310] },
+                    '120': { total: [562.5, 635, 695, 740, 800], squat: [207.5, 237.5, 267.5, 282.5, 295], bench: [130, 142.5, 160, 180, 207.5], deadlift: [225, 250, 282.5, 300, 315] },
+                    '120+': { total: [557.5, 630, 722.5, 752.5, 852.5], squat: [212.5, 245, 277.5, 300, 330], bench: [132.5, 152.5, 165, 172.5, 222.5], deadlift: [217.5, 240, 277.5, 292.5, 330] }
+                },
                 open: {
                     '59': { total: [420, 470, 512.5, 540, 585], squat: [147.5, 167.5, 182.5, 192.5, 212.5], bench: [90, 107.5, 120, 127.5, 145], deadlift: [180, 200, 220, 230, 260] },
                     '66': { total: [462.5, 517.5, 570, 600, 652.5], squat: [165, 185, 205, 217.5, 237.5], bench: [102.5, 117.5, 130, 140, 160], deadlift: [197.5, 220, 240, 252.5, 282.5] },
@@ -533,6 +547,16 @@
                 }
             },
             female: {
+                'sub-junior': {
+                    '47': { total: [230, 257.5, 275, 280, 317.5], squat: [80, 95, 102.5, 105, 112.5], bench: [42.5, 50, 55, 57.5, 65], deadlift: [102.5, 117.5, 125, 132.5, 140] },
+                    '52': { total: [257.5, 290, 325, 342.5, 372.5], squat: [92.5, 105, 120, 122.5, 142.5], bench: [50, 60, 70, 70, 87.5], deadlift: [115, 130, 142.5, 152.5, 160] },
+                    '57': { total: [275, 310, 342.5, 360, 412.5], squat: [100, 115, 127.5, 135, 150], bench: [55, 62.5, 72.5, 77.5, 82.5], deadlift: [120, 135, 150, 160, 175] },
+                    '63': { total: [295, 332.5, 367.5, 392.5, 417.5], squat: [110, 125, 137.5, 145, 160], bench: [57.5, 67.5, 75, 85, 102.5], deadlift: [127.5, 145, 160, 165, 177.5] },
+                    '69': { total: [312.5, 350, 382.5, 405, 440], squat: [115, 135, 145, 152.5, 170], bench: [65, 72.5, 82.5, 90, 102.5], deadlift: [135, 150, 162.5, 167.5, 187.5] },
+                    '76': { total: [315, 365, 400, 422.5, 492.5], squat: [117.5, 135, 152.5, 157.5, 185], bench: [62.5, 75, 85, 90, 105], deadlift: [137.5, 157.5, 172.5, 185, 202.5] },
+                    '84': { total: [332.5, 387.5, 412.5, 432.5, 500], squat: [127.5, 142.5, 162.5, 165, 200], bench: [65, 80, 87.5, 92.5, 107.5], deadlift: [142.5, 165, 182.5, 192.5, 210] },
+                    '84+': { total: [330, 392.5, 447.5, 482.5, 577.5], squat: [130, 155, 185, 192.5, 240], bench: [62.5, 75, 87.5, 92.5, 117.5], deadlift: [145, 162.5, 182.5, 197.5, 230] }
+                },
                 open: {
                     '47': { total: [262.5, 307.5, 337.5, 352.5, 395], squat: [95, 110, 125, 130, 145], bench: [50, 62.5, 70, 75, 85], deadlift: [117.5, 135, 150, 155, 172.5] },
                     '52': { total: [285, 325, 362.5, 380, 427.5], squat: [102.5, 120, 135, 142.5, 160], bench: [55, 67.5, 75, 82.5, 97.5], deadlift: [127.5, 142.5, 157.5, 165, 182.5] },
@@ -662,7 +686,10 @@
             
             ctx.font = '36px Arial';
             ctx.fillStyle = 'rgba(255,255,255,0.9)';
-            ctx.fillText(`${gender.charAt(0).toUpperCase() + gender.slice(1)} • ${ageClass.charAt(0).toUpperCase() + ageClass.slice(1)} • ${weightClass}kg`, 540, 410);
+            const ageLabel = ageClass === 'sub-junior' ? 'Sub-Junior' : 
+                           ageClass === 'open' ? 'Open' : 
+                           ageClass.charAt(0).toUpperCase() + ageClass.slice(1);
+            ctx.fillText(`${gender.charAt(0).toUpperCase() + gender.slice(1)} • ${ageLabel} • ${weightClass}kg`, 540, 410);
             
             const resultsData = window.lastResults || [];
             let yPos = 520;
@@ -685,12 +712,12 @@
                 const badgeWidth = 480;
                 const badgeHeight = 70;
                 
-                let badgeColor = '#e74c3c';
-                if (result.rank === 'world-class') badgeColor = '#27ae60';
-                else if (result.rank === 'elite') badgeColor = '#2ecc71';
-                else if (result.rank === 'strong') badgeColor = '#f39c12';
-                else if (result.rank === 'good') badgeColor = '#e67e22';
-                else if (result.rank === 'above-average') badgeColor = '#95a5a6';
+                let badgeColor = '#F44336'; // Red for below-average
+                if (result.rank === 'world-class') badgeColor = '#4CAF50'; // Green
+                else if (result.rank === 'elite') badgeColor = '#8BC34A'; // Light Green
+                else if (result.rank === 'strong') badgeColor = '#CDDC39'; // Lime
+                else if (result.rank === 'good') badgeColor = '#FFC107'; // Amber
+                else if (result.rank === 'above-average') badgeColor = '#FF9800'; // Orange
                 
                 ctx.fillStyle = badgeColor;
                 ctx.fillRect(badgeX, badgeY, badgeWidth, badgeHeight);
